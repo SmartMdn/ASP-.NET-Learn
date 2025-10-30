@@ -1,6 +1,18 @@
 # Library Management API
 
-REST API для управления библиотекой (авторы и книги).
+REST API для управления библиотекой (авторы и книги) с использованием Entity Framework Core и SQLite.
+
+## Новое: Entity Framework Core
+
+API теперь использует **Entity Framework Core** с подходом **Code First** и базой данных **SQLite**. 
+
+**Основные возможности:**
+- Связь один-ко-многим между Author и Book
+- LINQ-запросы для работы с данными
+- Миграции для управления схемой БД
+- Seed-данные (начальные авторы и книги)
+- Дополнительные endpoints для сложных запросов
+
 
 ## Требования
 
@@ -25,12 +37,18 @@ REST API для управления библиотекой (авторы и к�
    dotnet restore
    ```
 
-3. **Запустить приложение**
+3. **Применить миграции (создать БД)**
+   ```bash
+   cd LibraryManagementAPI
+   dotnet ef database update
+   ```
+
+4. **Запустить приложение**
    ```bash
    dotnet run
    ```
 
-4. **Открыть в браузере**
+5. **Открыть в браузере**
    - Swagger UI: http://localhost:5000
    - HTTPS: https://localhost:5001
 
@@ -40,10 +58,17 @@ REST API для управления библиотекой (авторы и к�
 2. Нажать **F5** или кнопку **Run**
 3. Swagger UI откроется автоматически
 
-### Способ 3: Docker Compose (рекомендуется)
+### Способ 3: Docker Compose (рекомендуется для production)
+
+**Особенности:**
+- ✅ Персистентное хранение БД в Docker volume
+- ✅ Автоматическое применение миграций
+- ✅ Health checks
+- ✅ Данные сохраняются между перезапусками
 
 1. **Запустить контейнер**
    ```bash
+   cd LibraryManagementAPI
    docker-compose up -d
    ```
 
@@ -66,14 +91,28 @@ REST API для управления библиотекой (авторы и к�
    docker-compose down
    ```
 
+6. **Остановить и удалить БД (осторожно!)**
+   ```bash
+   docker-compose down -v
+   ```
+
 ### Способ 4: Docker напрямую
 
 ```bash
+cd LibraryManagementAPI
+
 # Собрать образ
 docker build -t library-management-api .
 
-# Запустить контейнер
-docker run -d -p 8080:8080 --name library-api library-management-api
+# Создать volume для БД
+docker volume create library-data
+
+# Запустить контейнер с volume
+docker run -d \
+  -p 8080:8080 \
+  -v library-data:/app/data \
+  --name library-api \
+  library-management-api
 
 # Просмотреть логи
 docker logs -f library-api
@@ -91,6 +130,62 @@ docker rm library-api
 
 Swagger UI откроется автоматически для тестирования API.
 
+---
+
+## Новые LINQ-запросы (LibraryQueries)
+
+### 1. Получить авторов с количеством книг
+**GET** `/api/libraryqueries/authors-with-book-count`
+
+**Ожидаемый результат (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "name": "Лев Толстой",
+    "dateOfBirth": "1828-09-09T00:00:00",
+    "bookCount": 2
+  },
+  {
+    "id": 2,
+    "name": "Фёдор Достоевский",
+    "dateOfBirth": "1821-11-11T00:00:00",
+    "bookCount": 2
+  }
+]
+```
+
+### 2. Получить книги после указанного года
+**GET** `/api/libraryqueries/books-after-year/2015`
+
+**Ожидаемый результат (200 OK):**
+```json
+[
+  {
+    "id": 6,
+    "title": "Современная книга",
+    "publishedYear": 2020,
+    "authorId": 1,
+    "authorName": "Лев Толстой"
+  }
+]
+```
+
+### 3. Поиск авторов по имени
+**GET** `/api/libraryqueries/search-authors?searchTerm=Толстой`
+
+**Ожидаемый результат (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "name": "Лев Толстой",
+    "dateOfBirth": "1828-09-09T00:00:00"
+  }
+]
+```
+
+---
 ## Примеры запросов для Swagger/Postman
 
 ### 1. Получить всех авторов
@@ -283,6 +378,7 @@ Swagger UI откроется автоматически для тестиров
 }
 ```
 
----
+
+
 
 

@@ -11,9 +11,23 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/library.db
+    volumes:
+      # Persistent volume for SQLite database
+      - library-data:/app/data
     restart: unless-stopped
     networks:
       - library-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/authors"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  library-data:
+    driver: local
 
 networks:
   library-network:
