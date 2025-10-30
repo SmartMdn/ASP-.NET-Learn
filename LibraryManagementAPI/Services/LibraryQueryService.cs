@@ -14,9 +14,9 @@ public class LibraryQueryService : ILibraryQueryService
     }
 
     // LINQ запрос: получить всех авторов с количеством книг
-    public IEnumerable<AuthorWithBookCountDto> GetAuthorsWithBookCount()
+    public async Task<IEnumerable<AuthorWithBookCountDto>> GetAuthorsWithBookCountAsync()
     {
-        return _context.Authors
+        return await _context.Authors
             .Select(a => new AuthorWithBookCountDto
             {
                 Id = a.Id,
@@ -26,13 +26,13 @@ public class LibraryQueryService : ILibraryQueryService
             })
             .OrderByDescending(a => a.BookCount)
             .ThenBy(a => a.Name)
-            .ToList();
+            .ToListAsync();
     }
 
     // LINQ запрос: получить книги, опубликованные после указанного года
-    public IEnumerable<BookDto> GetBooksPublishedAfterYear(int year)
+    public async Task<IEnumerable<BookDto>> GetBooksPublishedAfterYearAsync(int year)
     {
-        return _context.Books
+        return await _context.Books
             .Include(b => b.Author)
             .Where(b => b.PublishedYear > year)
             .OrderBy(b => b.PublishedYear)
@@ -45,13 +45,13 @@ public class LibraryQueryService : ILibraryQueryService
                 AuthorId = b.AuthorId,
                 AuthorName = b.Author!.Name
             })
-            .ToList();
+            .ToListAsync();
     }
 
     // LINQ запрос: найти автора по имени (с Contains или StartsWith)
-    public IEnumerable<AuthorDto> SearchAuthorsByName(string searchTerm)
+    public async Task<IEnumerable<AuthorDto>> SearchAuthorsByNameAsync(string searchTerm)
     {
-        return _context.Authors
+        return await _context.Authors
             .Where(a => a.Name.Contains(searchTerm) || a.Name.StartsWith(searchTerm))
             .OrderBy(a => a.Name)
             .Select(a => new AuthorDto
@@ -60,6 +60,6 @@ public class LibraryQueryService : ILibraryQueryService
                 Name = a.Name,
                 DateOfBirth = a.DateOfBirth
             })
-            .ToList();
+            .ToListAsync();
     }
 }

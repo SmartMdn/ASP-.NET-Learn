@@ -19,18 +19,18 @@ public class AuthorsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<Author>> GetAll()
+    public async Task<ActionResult<IEnumerable<Author>>> GetAll()
     {
-        var authors = _authorService.GetAll();
+        var authors = await _authorService.GetAllAsync();
         return Ok(authors);
     }
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Author> GetById(int id)
+    public async Task<ActionResult<Author>> GetById(int id)
     {
-        var author = _authorService.GetById(id);
+        var author = await _authorService.GetByIdAsync(id);
         if (author == null)
             return NotFound(new { message = $"Автор с ID {id} не найден" });
 
@@ -40,7 +40,7 @@ public class AuthorsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<Author> Create([FromBody] CreateAuthorDto dto)
+    public async Task<ActionResult<Author>> Create([FromBody] CreateAuthorDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -55,7 +55,7 @@ public class AuthorsController : ControllerBase
             DateOfBirth = dto.DateOfBirth
         };
 
-        var createdAuthor = _authorService.Create(author);
+        var createdAuthor = await _authorService.CreateAsync(author);
         return CreatedAtAction(nameof(GetById), new { id = createdAuthor.Id }, createdAuthor);
     }
 
@@ -63,7 +63,7 @@ public class AuthorsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Update(int id, [FromBody] UpdateAuthorDto dto)
+    public async Task<ActionResult> Update(int id, [FromBody] UpdateAuthorDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -78,7 +78,7 @@ public class AuthorsController : ControllerBase
             DateOfBirth = dto.DateOfBirth
         };
 
-        var success = _authorService.Update(id, author);
+        var success = await _authorService.UpdateAsync(id, author);
         if (!success)
             return NotFound(new { message = $"Автор с ID {id} не найден" });
 
@@ -88,9 +88,9 @@ public class AuthorsController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var success = _authorService.Delete(id);
+        var success = await _authorService.DeleteAsync(id);
         if (!success)
             return NotFound(new { message = $"Автор с ID {id} не найден" });
 

@@ -13,50 +13,50 @@ public class AuthorService : IAuthorService
         _context = context;
     }
 
-    public IEnumerable<Author> GetAll()
+    public async Task<IEnumerable<Author>> GetAllAsync()
     {
         // LINQ запрос: получить всех авторов с количеством книг
-        return _context.Authors
+        return await _context.Authors
             .Include(a => a.Books)
             .OrderBy(a => a.Name)
-            .ToList();
+            .ToListAsync();
     }
 
-    public Author? GetById(int id)
+    public async Task<Author?> GetByIdAsync(int id)
     {
         // LINQ запрос: найти автора по ID с его книгами
-        return _context.Authors
+        return await _context.Authors
             .Include(a => a.Books)
-            .FirstOrDefault(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public Author Create(Author author)
+    public async Task<Author> CreateAsync(Author author)
     {
         _context.Authors.Add(author);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return author;
     }
 
-    public bool Update(int id, Author author)
+    public async Task<bool> UpdateAsync(int id, Author author)
     {
-        var existingAuthor = _context.Authors.Find(id);
+        var existingAuthor = await _context.Authors.FindAsync(id);
         if (existingAuthor == null)
             return false;
 
         existingAuthor.Name = author.Name;
         existingAuthor.DateOfBirth = author.DateOfBirth;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var author = _context.Authors.Find(id);
+        var author = await _context.Authors.FindAsync(id);
         if (author == null)
             return false;
 
         _context.Authors.Remove(author);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return true;
     }
 }

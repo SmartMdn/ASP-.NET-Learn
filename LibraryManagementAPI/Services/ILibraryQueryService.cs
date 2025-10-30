@@ -4,7 +4,7 @@ namespace LibraryManagementAPI.Services;
 
 public interface ILibraryQueryService
 {
-    IEnumerable<AuthorWithBookCountDto> GetAuthorsWithBookCount();
-    IEnumerable<BookDto> GetBooksPublishedAfterYear(int year);
-    IEnumerable<AuthorDto> SearchAuthorsByName(string searchTerm);
+    Task<IEnumerable<AuthorWithBookCountDto>> GetAuthorsWithBookCountAsync();
+    Task<IEnumerable<BookDto>> GetBooksPublishedAfterYearAsync(int year);
+    Task<IEnumerable<AuthorDto>> SearchAuthorsByNameAsync(string searchTerm);
 }

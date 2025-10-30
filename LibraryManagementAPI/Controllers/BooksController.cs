@@ -21,18 +21,18 @@ public class BooksController : ControllerBase
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<Book>> GetAll()
+    public async Task<ActionResult<IEnumerable<Book>>> GetAll()
     {
-        var books = _bookService.GetAll();
+        var books = await _bookService.GetAllAsync();
         return Ok(books);
     }
     
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Book> GetById(int id)
+    public async Task<ActionResult<Book>> GetById(int id)
     {
-        var book = _bookService.GetById(id);
+        var book = await _bookService.GetByIdAsync(id);
         if (book == null)
             return NotFound(new { message = $"Книга с ID {id} не найдена" });
 
@@ -42,7 +42,7 @@ public class BooksController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<Book> Create([FromBody] CreateBookDto dto)
+    public async Task<ActionResult<Book>> Create([FromBody] CreateBookDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -51,7 +51,7 @@ public class BooksController : ControllerBase
         if (!yearValidation.IsValid)
             return BadRequest(new { message = yearValidation.ErrorMessage });
 
-        var author = _authorService.GetById(dto.AuthorId);
+        var author = await _authorService.GetByIdAsync(dto.AuthorId);
         if (author == null)
             return BadRequest(new { message = $"Автор с ID {dto.AuthorId} не найден" });
 
@@ -62,7 +62,7 @@ public class BooksController : ControllerBase
             AuthorId = dto.AuthorId
         };
 
-        var createdBook = _bookService.Create(book);
+        var createdBook = await _bookService.CreateAsync(book);
         return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, createdBook);
     }
     
@@ -70,7 +70,7 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Update(int id, [FromBody] UpdateBookDto dto)
+    public async Task<ActionResult> Update(int id, [FromBody] UpdateBookDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -79,7 +79,7 @@ public class BooksController : ControllerBase
         if (!yearValidation.IsValid)
             return BadRequest(new { message = yearValidation.ErrorMessage });
 
-        var author = _authorService.GetById(dto.AuthorId);
+        var author = await _authorService.GetByIdAsync(dto.AuthorId);
         if (author == null)
             return BadRequest(new { message = $"Автор с ID {dto.AuthorId} не найден" });
 
@@ -90,7 +90,7 @@ public class BooksController : ControllerBase
             AuthorId = dto.AuthorId
         };
 
-        var success = _bookService.Update(id, book);
+        var success = await _bookService.UpdateAsync(id, book);
         if (!success)
             return NotFound(new { message = $"Книга с ID {id} не найдена" });
 
@@ -100,9 +100,9 @@ public class BooksController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var success = _bookService.Delete(id);
+        var success = await _bookService.DeleteAsync(id);
         if (!success)
             return NotFound(new { message = $"Книга с ID {id} не найдена" });
 

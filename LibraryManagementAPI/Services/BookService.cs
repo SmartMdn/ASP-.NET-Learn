@@ -13,51 +13,51 @@ public class BookService : IBookService
         _context = context;
     }
 
-    public IEnumerable<Book> GetAll()
+    public async Task<IEnumerable<Book>> GetAllAsync()
     {
         // LINQ запрос: получить все книги с информацией об авторах
-        return _context.Books
+        return await _context.Books
             .Include(b => b.Author)
             .OrderBy(b => b.Title)
-            .ToList();
+            .ToListAsync();
     }
 
-    public Book? GetById(int id)
+    public async Task<Book?> GetByIdAsync(int id)
     {
         // LINQ запрос: найти книгу по ID с информацией об авторе
-        return _context.Books
+        return await _context.Books
             .Include(b => b.Author)
-            .FirstOrDefault(b => b.Id == id);
+            .FirstOrDefaultAsync(b => b.Id == id);
     }
 
-    public Book Create(Book book)
+    public async Task<Book> CreateAsync(Book book)
     {
         _context.Books.Add(book);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return book;
     }
 
-    public bool Update(int id, Book book)
+    public async Task<bool> UpdateAsync(int id, Book book)
     {
-        var existingBook = _context.Books.Find(id);
+        var existingBook = await _context.Books.FindAsync(id);
         if (existingBook == null)
             return false;
 
         existingBook.Title = book.Title;
         existingBook.PublishedYear = book.PublishedYear;
         existingBook.AuthorId = book.AuthorId;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var book = _context.Books.Find(id);
+        var book = await _context.Books.FindAsync(id);
         if (book == null)
             return false;
 
         _context.Books.Remove(book);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return true;
     }
 }

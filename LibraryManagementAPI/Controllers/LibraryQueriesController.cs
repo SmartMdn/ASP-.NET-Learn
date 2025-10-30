@@ -20,9 +20,9 @@ public class LibraryQueriesController : ControllerBase
     /// </summary>
     [HttpGet("authors-with-book-count")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<AuthorWithBookCountDto>> GetAuthorsWithBookCount()
+    public async Task<ActionResult<IEnumerable<AuthorWithBookCountDto>>> GetAuthorsWithBookCount()
     {
-        var result = _queryService.GetAuthorsWithBookCount();
+        var result = await _queryService.GetAuthorsWithBookCountAsync();
         return Ok(result);
     }
 
@@ -32,12 +32,12 @@ public class LibraryQueriesController : ControllerBase
     [HttpGet("books-after-year/{year}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<IEnumerable<BookDto>> GetBooksPublishedAfterYear(int year)
+    public async Task<ActionResult<IEnumerable<BookDto>>> GetBooksPublishedAfterYear(int year)
     {
         if (year < 0 || year > DateTime.Now.Year)
             return BadRequest(new { message = "Некорректный год" });
 
-        var result = _queryService.GetBooksPublishedAfterYear(year);
+        var result = await _queryService.GetBooksPublishedAfterYearAsync(year);
         return Ok(result);
     }
 
@@ -47,12 +47,12 @@ public class LibraryQueriesController : ControllerBase
     [HttpGet("search-authors")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<IEnumerable<AuthorDto>> SearchAuthorsByName([FromQuery] string searchTerm)
+    public async Task<ActionResult<IEnumerable<AuthorDto>>> SearchAuthorsByName([FromQuery] string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
             return BadRequest(new { message = "Поисковый запрос не может быть пустым" });
 
-        var result = _queryService.SearchAuthorsByName(searchTerm);
+        var result = await _queryService.SearchAuthorsByNameAsync(searchTerm);
         return Ok(result);
     }
 }
