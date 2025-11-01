@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementAPI.DTOs;
+namespace LibraryManagement.BusinessLogic.DTOs;
 
-public class UpdateAuthorDto
+public class CreateAuthorDto
 {
     [Required(ErrorMessage = "Имя автора обязательно")]
     [StringLength(200, MinimumLength = 1, ErrorMessage = "Имя автора должно быть от 1 до 200 символов")]

@@ -1,8 +1,9 @@
-namespace LibraryManagementAPI.Models;
+namespace LibraryManagement.BusinessLogic.DTOs;
 
-public class Author
+public class AuthorWithBookCountDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
+    public int BookCount { get; set; }
 }

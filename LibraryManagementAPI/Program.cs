@@ -1,11 +1,14 @@
-using LibraryManagementAPI.Services;
+using LibraryManagement.BusinessLogic.Extensions;
+using LibraryManagement.DataAccess.Extensions;
+using LibraryManagementAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<IAuthorService, AuthorService>();
-builder.Services.AddSingleton<IBookService, BookService>();
+builder.Services.AddDataAccess(builder.Configuration);
+
+builder.Services.AddBusinessLogic();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -16,19 +19,20 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API для управления библиотекой (авторы и книги)"
     });
+    
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Library Management API v1");
-        options.RoutePrefix = string.Empty; 
-    });
-}
+app.UseDatabaseMigration();
+
+app.UseSwaggerConfiguration();
 
 app.UseHttpsRedirection();
 

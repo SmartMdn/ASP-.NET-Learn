@@ -1,134 +1,146 @@
 # Library Management API
 
-REST API для управления библиотекой (авторы и книги).
+REST API для управления библиотекой с трехслойной архитектурой, Entity Framework Core и SQLite.
 
-## Требования
+## 📋 Технологии
 
-### Для локального запуска:
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) или выше
+- **ASP.NET Core 8.0** - веб-фреймворк
+- **Entity Framework Core** - ORM (Code First подход)
+- **SQLite** - база данных
+- **Swagger/OpenAPI** - документация API
+- **Docker** - контейнеризация
 
-### Для запуска в Docker:
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+### Требования
 
-## Инструкция по запуску
+- **Для локального запуска:** [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **Для Docker:** [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-### Способ 1: Локальный запуск через .NET CLI
+---
 
-1. **Клонировать репозиторий**
-   ```bash
-   git clone https://github.com/yourusername/LibraryManagementAPI.git
-   cd LibraryManagementAPI
-   ```
+## Запуск
 
-2. **Восстановить зависимости**
-   ```bash
-   dotnet restore
-   ```
-
-3. **Запустить приложение**
-   ```bash
-   dotnet run
-   ```
-
-4. **Открыть в браузере**
-   - Swagger UI: http://localhost:5000
-   - HTTPS: https://localhost:5001
-
-### Способ 2: Запуск через IDE (Rider/Visual Studio)
-
-1. Открыть решение `LibraryManagementAPI.csproj`
-2. Нажать **F5** или кнопку **Run**
-3. Swagger UI откроется автоматически
-
-### Способ 3: Docker Compose (рекомендуется)
-
-1. **Запустить контейнер**
-   ```bash
-   docker-compose up -d
-   ```
-
-2. **Проверить статус**
-   ```bash
-   docker-compose ps
-   ```
-
-3. **Открыть в браузере**
-   - API: http://localhost:8080
-   - Swagger UI: http://localhost:8080
-
-4. **Просмотреть логи**
-   ```bash
-   docker-compose logs -f
-   ```
-
-5. **Остановить контейнер**
-   ```bash
-   docker-compose down
-   ```
-
-### Способ 4: Docker напрямую
+### Вариант 1: Docker Compose (рекомендуется)
 
 ```bash
-# Собрать образ
-docker build -t library-management-api .
+# Клонировать репозиторий
+git clone <repository-url>
+cd AspNET_Learn
 
 # Запустить контейнер
-docker run -d -p 8080:8080 --name library-api library-management-api
+docker-compose up -d
 
-# Просмотреть логи
-docker logs -f library-api
+# Проверить статус
+docker-compose ps
 
-# Остановить контейнер
-docker stop library-api
-docker rm library-api
+# Открыть Swagger UI
+# http://localhost:8080
 ```
 
-## Проверка работы
+**Управление:**
+```bash
+# Просмотр логов
+docker-compose logs -f
 
-После запуска откройте в браузере:
-- **Локально**: http://localhost:5000
-- **Docker**: http://localhost:8080
+# Остановка
+docker-compose down
 
-Swagger UI откроется автоматически для тестирования API.
+# Остановка с удалением данных
+docker-compose down -v
+```
 
-## Примеры запросов для Swagger/Postman
+---
 
-### 1. Получить всех авторов
-**GET** `/api/authors`
+### Вариант 2: Локальный запуск
 
-**Ожидаемый результат (200 OK):**
+```bash
+# Клонировать репозиторий
+git clone <repository-url>
+cd AspNET_Learn
+
+# Восстановить зависимости
+dotnet restore
+
+# Перейти в API проект
+cd LibraryManagementAPI
+
+# Запустить приложение
+dotnet run
+
+# Открыть Swagger UI
+# http://localhost:5000 или https://localhost:5001
+```
+
+База данных SQLite создастся автоматически при первом запуске с seed-данными.
+
+---
+
+## Тестирование API
+
+### Swagger UI
+Swagger UI доступен по умолчанию:
+- **Локально:** http://localhost:5000
+- **Docker:** http://localhost:8080
+
+---
+## Примеры запросов
+
+### Авторы
+
+#### Получить всех авторов
+```http
+GET /api/authors
+```
+
+**Ответ (200 OK):**
 ```json
 [
   {
     "id": 1,
     "name": "Лев Толстой",
     "dateOfBirth": "1828-09-09T00:00:00"
-  },
-  {
-    "id": 2,
-    "name": "Фёдор Достоевский",
-    "dateOfBirth": "1821-11-11T00:00:00"
-  },
-  {
-    "id": 3,
-    "name": "Антон Чехов",
-    "dateOfBirth": "1860-01-29T00:00:00"
   }
 ]
 ```
 
-### 2. Создать нового автора
-**POST** `/api/authors`
+#### Получить авторов с количеством книг
+```http
+GET /api/authors/with-book-count
+```
 
-**Тело запроса:**
+**Ответ (200 OK):**
 ```json
+[
+  {
+    "id": 1,
+    "name": "Лев Толстой",
+    "dateOfBirth": "1828-09-09T00:00:00",
+    "bookCount": 2
+  }
+]
+```
+
+#### Поиск авторов
+```http
+GET /api/authors?searchTerm=Толстой
+```
+
+#### Получить автора по ID
+```http
+GET /api/authors/1
+```
+
+#### Создать автора
+```http
+POST /api/authors
+Content-Type: application/json
+
 {
   "name": "Александр Пушкин",
   "dateOfBirth": "1799-06-06"
 }
 ```
 
-**Ожидаемый результат (201 Created):**
+**Ответ (201 Created):**
 ```json
 {
   "id": 4,
@@ -137,80 +149,81 @@ Swagger UI откроется автоматически для тестиров
 }
 ```
 
-### 3. Обновить автора
-**PUT** `/api/authors/1`
+#### Обновить автора
+```http
+PUT /api/authors/1
+Content-Type: application/json
 
-**Тело запроса:**
-```json
 {
   "name": "Лев Николаевич Толстой",
   "dateOfBirth": "1828-09-09"
 }
 ```
 
-**Ожидаемый результат (200 OK):**
-```json
-{
-  "id": 1,
-  "name": "Лев Николаевич Толстой",
-  "dateOfBirth": "1828-09-09T00:00:00"
-}
+**Ответ (204 No Content)**
+
+#### Удалить автора
+```http
+DELETE /api/authors/1
 ```
 
-### 4. Получить все книги
-**GET** `/api/books`
+**Ответ (204 No Content)**
 
-**Ожидаемый результат (200 OK):**
+---
+
+### Книги
+
+#### Получить все книги
+```http
+GET /api/books
+```
+
+**Ответ (200 OK):**
 ```json
 [
   {
     "id": 1,
     "title": "Война и мир",
     "publishedYear": 1869,
-    "authorId": 1
-  },
-  {
-    "id": 2,
-    "title": "Анна Каренина",
-    "publishedYear": 1877,
-    "authorId": 1
-  },
-  {
-    "id": 3,
-    "title": "Преступление и наказание",
-    "publishedYear": 1866,
-    "authorId": 2
+    "authorId": 1,
+    "authorName": "Лев Толстой"
   }
 ]
 ```
 
-### 5. Создать новую книгу
-**POST** `/api/books`
+#### Фильтр по году публикации
+```http
+GET /api/books?publishedAfterYear=1900
+```
 
-**Тело запроса:**
-```json
+#### Создать книгу
+```http
+POST /api/books
+Content-Type: application/json
+
 {
   "title": "Евгений Онегин",
   "publishedYear": 1833,
-  "authorId": 4
+  "authorId": 1
 }
 ```
 
-**Ожидаемый результат (201 Created):**
+**Ответ (201 Created):**
 ```json
 {
   "id": 6,
   "title": "Евгений Онегин",
   "publishedYear": 1833,
-  "authorId": 4
+  "authorId": 1,
+  "authorName": "Александр Пушкин"
 }
 ```
 
-### 6. Обновить книгу
-**PUT** `/api/books/1`
+#### Обновить книгу
+```http
+PUT /api/books/1
+Content-Type: application/json
 
-**Тело запроса:**
-```json
 {
   "title": "Война и мир (полное издание)",
   "publishedYear": 1869,
@@ -218,71 +231,69 @@ Swagger UI откроется автоматически для тестиров
 }
 ```
 
-**Ожидаемый результат (200 OK):**
-```json
+**Ответ (204 No Content)**
+
+#### Удалить книгу
+```http
+DELETE /api/books/1
+```
+
+**Ответ (204 No Content)**
+
+---
+
+## Примеры ошибок
+
+### Валидация даты
+```http
+POST /api/authors
+Content-Type: application/json
+
 {
-  "id": 1,
-  "title": "Война и мир (полное издание)",
-  "publishedYear": 1869,
-  "authorId": 1
-}
-```
-
-### 7. Удалить книгу
-**DELETE** `/api/books/1`
-
-**Ожидаемый результат (204 No Content):**
-```
-Нет тела ответа
-```
-
-### Примеры ошибок валидации
-
-**Создание автора с датой в будущем:**
-```json
-{
-  "name": "Тестовый Автор",
+  "name": "Тест",
   "dateOfBirth": "2030-01-01"
 }
 ```
 
-**Результат (400 Bad Request):**
+**Ответ (400 Bad Request):**
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "One or more validation errors occurred.",
-  "status": 400,
-  "errors": {
-    "DateOfBirth": [
-      "Дата рождения не может быть в будущем"
-    ]
-  }
+  "message": "Дата рождения не может быть в будущем"
 }
 ```
 
-**Создание книги с несуществующим автором:**
-```json
+### Несуществующий автор
+```http
+POST /api/books
+Content-Type: application/json
+
 {
-  "title": "Тестовая книга",
+  "title": "Тест",
   "publishedYear": 2020,
   "authorId": 999
 }
 ```
 
-**Результат (400 Bad Request):**
+**Ответ (400 Bad Request):**
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-  "title": "One or more validation errors occurred.",
-  "status": 400,
-  "errors": {
-    "AuthorId": [
-      "Автор с ID 999 не найден"
-    ]
-  }
+  "message": "Автор с ID 999 не найден"
 }
 ```
 
----
+### Ресурс не найден
+```http
+GET /api/authors/999
+```
+
+**Ответ (404 Not Found):**
+```json
+{
+  "message": "Автор с ID 999 не найден"
+}
+```
+
+
+
 
 

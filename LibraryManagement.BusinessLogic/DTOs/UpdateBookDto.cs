@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementAPI.DTOs;
+namespace LibraryManagement.BusinessLogic.DTOs;
 
-public class CreateBookDto
+public class UpdateBookDto
 {
     [Required(ErrorMessage = "Название книги обязательно")]
     [StringLength(500, MinimumLength = 1, ErrorMessage = "Название книги должно быть от 1 до 500 символов")]
