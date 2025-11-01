@@ -10,25 +10,6 @@ REST API для управления библиотекой с трехслой�
 - **Swagger/OpenAPI** - документация API
 - **Docker** - контейнеризация
 
-## 🏗️ Архитектура
-
-Проект использует **трехслойную архитектуру** с разделением ответственности:
-
-```
-LibraryManagementAPI/          # Presentation Layer (Controllers, API)
-LibraryManagement.BusinessLogic/  # Business Logic Layer (Services, DTOs, Validators)
-LibraryManagement.DataAccess/    # Data Access Layer (Repositories, EF Context, Models)
-```
-
-**Принципы:**
-- ✅ SOLID
-- ✅ DRY (Don't Repeat Yourself)
-- ✅ KISS (Keep It Simple, Stupid)
-- ✅ Layered Architecture
-- ✅ Dependency Injection
-
-## 🚀 Быстрый старт
-
 ### Требования
 
 - **Для локального запуска:** [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -36,7 +17,7 @@ LibraryManagement.DataAccess/    # Data Access Layer (Repositories, EF Context, 
 
 ---
 
-## 📦 Запуск
+## Запуск
 
 ### Вариант 1: Docker Compose (рекомендуется)
 
@@ -93,7 +74,7 @@ dotnet run
 
 ---
 
-## 🧪 Тестирование API
+## Тестирование API
 
 ### Swagger UI
 Swagger UI доступен по умолчанию:
@@ -101,7 +82,7 @@ Swagger UI доступен по умолчанию:
 - **Docker:** http://localhost:8080
 
 ---
-## 📚 Примеры запросов
+## Примеры запросов
 
 ### Авторы
 
@@ -261,7 +242,7 @@ DELETE /api/books/1
 
 ---
 
-## ⚠️ Примеры ошибок
+## Примеры ошибок
 
 ### Валидация даты
 ```http
