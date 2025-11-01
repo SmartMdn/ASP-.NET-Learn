@@ -1,25 +1,14 @@
-using LibraryManagementAPI.Data;
-using LibraryManagementAPI.Services;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
+using LibraryManagement.BusinessLogic.Extensions;
+using LibraryManagement.DataAccess.Extensions;
+using LibraryManagementAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    });
+builder.Services.AddControllers();
 
-// Регистрация DbContext
-builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDataAccess(builder.Configuration);
 
-// Изменение с Singleton на Scoped для работы с EF Core
-builder.Services.AddScoped<IAuthorService, AuthorService>();
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<ILibraryQueryService, LibraryQueryService>();
+builder.Services.AddBusinessLogic();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -30,45 +19,20 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API для управления библиотекой (авторы и книги)"
     });
+    
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
 
-// Автоматическое применение миграций при запуске
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<LibraryContext>();
-        context.Database.Migrate();
-        app.Logger.LogInformation("Database migrations applied successfully");
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "An error occurred while migrating the database");
-    }
-}
+app.UseDatabaseMigration();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Library Management API v1");
-        options.RoutePrefix = string.Empty; 
-    });
-}
-else
-{
-    // Включить Swagger в Production для Docker
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Library Management API v1");
-        options.RoutePrefix = string.Empty;
-    });
-}
+app.UseSwaggerConfiguration();
 
 app.UseHttpsRedirection();
 
